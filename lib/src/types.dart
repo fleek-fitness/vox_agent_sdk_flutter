@@ -6,9 +6,24 @@ enum ConversationStatus {
   connected,
 }
 
-enum ConversationMode {
-  listening,
-  speaking,
+enum AgentState {
+  initializing("initializing"),
+  idle("idle"),
+  listening("listening"),
+  thinking("thinking"),
+  speaking("speaking");
+
+  const AgentState(this.value);
+
+  final String value;
+
+  static AgentState? fromValue(String? value) {
+    if (value == null) return null;
+    for (final state in AgentState.values) {
+      if (state.value == value) return state;
+    }
+    return null;
+  }
 }
 
 enum ConversationSource {
@@ -96,6 +111,6 @@ typedef ConversationDisconnectCallback = void Function();
 typedef ConversationErrorCallback = void Function(Exception error);
 typedef ConversationMessageCallback = void Function(ConversationMessage message);
 typedef ConversationStatusCallback = void Function(ConversationStatus status);
-typedef ConversationModeCallback = void Function(ConversationMode mode);
+typedef ConversationAgentStateCallback = void Function(AgentState agentState);
 
 typedef FrequencyData = Uint8List;

@@ -71,6 +71,7 @@ await conversation.startSession(
 
 ```dart
 conversation.status;     // ConversationStatus
+conversation.agentState; // AgentState?
 conversation.isSpeaking; // bool
 conversation.micMuted;   // bool
 conversation.messages;   // List<ConversationMessage>
@@ -83,6 +84,7 @@ await conversation.endSession();
 
 final sessionId = conversation.getId();
 final messages = conversation.getMessages();
+final agentState = conversation.getAgentState();
 
 conversation.setVolume(const SetVolumeParams(volume: 0.5));
 await conversation.setMicMuted(true);
@@ -126,7 +128,7 @@ class _ConversationControllerState extends State<ConversationController> {
       onDisconnect: () => setState(() {}),
       onMessage: (_) => setState(() {}),
       onStatusChange: (_) => setState(() {}),
-      onModeChange: (_) => setState(() {}),
+      onAgentStateChange: (_) => setState(() {}),
     );
   }
 

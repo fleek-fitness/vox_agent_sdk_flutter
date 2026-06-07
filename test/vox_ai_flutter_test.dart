@@ -6,7 +6,8 @@ void main() {
     final conversation = Conversation();
 
     expect(conversation.status, ConversationStatus.disconnected);
-    expect(conversation.mode, ConversationMode.listening);
+    expect(conversation.agentState, isNull);
+    expect(conversation.getAgentState(), isNull);
     expect(conversation.isSpeaking, isFalse);
     expect(conversation.micMuted, isTrue);
     expect(conversation.messages, isEmpty);

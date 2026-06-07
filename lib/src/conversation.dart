@@ -4,7 +4,7 @@ import "dart:math" as math;
 
 import "package:flutter/foundation.dart";
 import "package:http/http.dart" as http;
-import "package:livekit_client/livekit_client.dart";
+import "package:livekit_client/livekit_client.dart" hide AgentState;
 
 import "constants.dart";
 import "types.dart";
@@ -52,7 +52,7 @@ class Conversation extends ChangeNotifier {
     this.onError,
     this.onMessage,
     this.onStatusChange,
-    this.onModeChange,
+    this.onAgentStateChange,
   });
 
   final bool textOnly;
@@ -61,7 +61,7 @@ class Conversation extends ChangeNotifier {
   final ConversationErrorCallback? onError;
   final ConversationMessageCallback? onMessage;
   final ConversationStatusCallback? onStatusChange;
-  final ConversationModeCallback? onModeChange;
+  final ConversationAgentStateCallback? onAgentStateChange;
 
   Room? _room;
   EventsListener<RoomEvent>? _listener;
@@ -73,7 +73,7 @@ class Conversation extends ChangeNotifier {
   Timer? _audioTimer;
 
   ConversationStatus _status = ConversationStatus.disconnected;
-  ConversationMode _mode = ConversationMode.listening;
+  AgentState? _agentState;
   bool _micMuted = true;
   double _inputVolume = 0;
   double _outputVolume = 0;
@@ -84,8 +84,8 @@ class Conversation extends ChangeNotifier {
   List<ConversationMessage> _messages = const <ConversationMessage>[];
 
   ConversationStatus get status => _status;
-  ConversationMode get mode => _mode;
-  bool get isSpeaking => _mode == ConversationMode.speaking;
+  AgentState? get agentState => _agentState;
+  bool get isSpeaking => _agentState == AgentState.speaking;
   bool get micMuted => _micMuted;
   List<ConversationMessage> get messages =>
       List<ConversationMessage>.unmodifiable(_messages);
@@ -105,7 +105,7 @@ class Conversation extends ChangeNotifier {
     _outputFrequencyData = Uint8List(0);
     _outputVolumeSetting = 1;
     _micMuted = true;
-    _updateMode(ConversationMode.listening);
+    _agentState = null;
     _updateStatus(ConversationStatus.connecting);
 
     final room = Room(
@@ -126,6 +126,12 @@ class Conversation extends ChangeNotifier {
         _connectionDetails!.serverUrl,
         _connectionDetails!.participantToken,
       );
+
+      for (final participant in room.remoteParticipants.values) {
+        _applyAgentState(
+          participant.attributes[liveKitAgentStateAttribute],
+        );
+      }
 
       if (_textOnlySession) {
         _micMuted = true;
@@ -161,6 +167,10 @@ class Conversation extends ChangeNotifier {
 
   List<ConversationMessage> getMessages() {
     return List<ConversationMessage>.unmodifiable(_messages);
+  }
+
+  AgentState? getAgentState() {
+    return _agentState;
   }
 
   void setVolume(SetVolumeParams params) {
@@ -367,14 +377,13 @@ class Conversation extends ChangeNotifier {
           ),
         );
       })
-      ..on<ActiveSpeakersChangedEvent>((event) {
-        if (_textOnlySession) return;
-        final hasRemoteSpeaker =
-            event.speakers.any((speaker) => speaker is! LocalParticipant);
-        _updateMode(
-          hasRemoteSpeaker
-              ? ConversationMode.speaking
-              : ConversationMode.listening,
+      ..on<ParticipantAttributesChanged>((event) {
+        if (event.participant is LocalParticipant) return;
+        _applyAgentState(event.attributes[liveKitAgentStateAttribute]);
+      })
+      ..on<ParticipantConnectedEvent>((event) {
+        _applyAgentState(
+          event.participant.attributes[liveKitAgentStateAttribute],
         );
       })
       ..on<TranscriptionEvent>((event) {
@@ -425,10 +434,6 @@ class Conversation extends ChangeNotifier {
         info?.timestamp ?? DateTime.now().millisecondsSinceEpoch;
     var latestText = "";
 
-    if (source == ConversationSource.agent) {
-      _updateMode(ConversationMode.speaking);
-    }
-
     try {
       await for (final chunk
           in reader.map((item) => utf8.decode(item.content, allowMalformed: true))) {
@@ -457,10 +462,6 @@ class Conversation extends ChangeNotifier {
       }
     } catch (error) {
       _emitError(error);
-    } finally {
-      if (source == ConversationSource.agent) {
-        _updateMode(ConversationMode.listening);
-      }
     }
   }
 
@@ -524,7 +525,7 @@ class Conversation extends ChangeNotifier {
     _inputFrequencyData = Uint8List(0);
     _outputFrequencyData = Uint8List(0);
     _micMuted = true;
-    _updateMode(ConversationMode.listening);
+    _agentState = null;
     _updateStatus(ConversationStatus.disconnected);
     _notifyListeners();
 
@@ -557,11 +558,19 @@ class Conversation extends ChangeNotifier {
     onStatusChange?.call(next);
   }
 
-  void _updateMode(ConversationMode next) {
-    if (_mode == next) return;
-    _mode = next;
-    _notifyListeners();
-    onModeChange?.call(next);
+  void _applyAgentState(String? value) {
+    final next = AgentState.fromValue(value);
+    if (next == null) return;
+
+    _updateAgentState(next);
+  }
+
+  void _updateAgentState(AgentState next) {
+    if (_agentState != next) {
+      _agentState = next;
+      _notifyListeners();
+      onAgentStateChange?.call(next);
+    }
   }
 
   void _emitConnect() {
