@@ -312,6 +312,9 @@ class Conversation extends ChangeNotifier {
       "agent_version": options.agentVersion ?? "current",
       "mode": mode,
       "dynamic_variables": options.dynamicVariables,
+      if (options.customerId != null) "customer_id": options.customerId,
+      if (options.customerExternalId != null)
+        "customer_external_id": options.customerExternalId,
       "metadata": <String, dynamic>{
         "runtime_context": <String, dynamic>{
           "source": <String, dynamic>{
