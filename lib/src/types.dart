@@ -87,6 +87,11 @@ class StartSessionOptions {
   /// carry over. Pass the same stable value, such as a signed-in user ID or
   /// installation ID, on every session that needs Memory continuity.
   final String? visitorId;
+
+  /// Agent prompt variables. Values must be String, num, or bool.
+  ///
+  /// Calling [Conversation.startSession] with any other value, including null,
+  /// a Map, or a List, throws an [ArgumentError] before the token request.
   final Map<String, Object?> dynamicVariables;
   final Map<String, Object?> metadata;
 }
