@@ -7,6 +7,7 @@ import "package:http/http.dart" as http;
 import "package:livekit_client/livekit_client.dart" hide AgentState;
 
 import "constants.dart";
+import "token_request.dart";
 import "types.dart";
 
 class _ConnectionDetails {
@@ -307,28 +308,7 @@ class Conversation extends ChangeNotifier {
     StartSessionOptions options,
   ) async {
     final mode = _textOnlySession ? "chat" : "call";
-    final payload = <String, dynamic>{
-      "agent_id": options.agentId,
-      "agent_version": options.agentVersion ?? "current",
-      "mode": mode,
-      "dynamic_variables": options.dynamicVariables,
-      if (options.customerId != null) "customer_id": options.customerId,
-      if (options.customerExternalId != null)
-        "customer_external_id": options.customerExternalId,
-      "metadata": <String, dynamic>{
-        "runtime_context": <String, dynamic>{
-          "source": <String, dynamic>{
-            "type": "react-sdk",
-            "version": sdkVersion,
-          },
-          "mode": mode,
-        },
-        "call_web": <String, dynamic>{
-          "dynamic_variables": options.dynamicVariables,
-          "metadata": options.metadata,
-        },
-      },
-    };
+    final payload = buildTokenRequestBody(options, mode);
 
     final response = await http.post(
       Uri.parse(liveKitTokenEndpoint),
