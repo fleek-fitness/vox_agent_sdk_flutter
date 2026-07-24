@@ -199,3 +199,8 @@ If your app requests runtime permissions manually, ask for microphone access bef
 - `changeInputDevice()` and `changeOutputDevice()` are best-effort. They return `false` on unsupported platforms such as mobile runtimes where device switching is not exposed.
 - `getInputByteFrequencyData()` and `getOutputByteFrequencyData()` currently return empty byte arrays because `livekit_client` does not expose analyser frequency buffers.
 - `setVolume()` is a best-effort SDK-level setting. Flutter LiveKit does not expose the same per-track playback volume controls available in the web SDK.
+
+## Organization API Key Security
+
+- `apiKey` is an organization-scoped secret. On untrusted public pages, use the Widget with a public widget ID instead of this SDK.
+- Keys included in an app or bundle can be extracted. Use a dedicated key that can be revoked, and rotate it immediately if exposure is detected.
