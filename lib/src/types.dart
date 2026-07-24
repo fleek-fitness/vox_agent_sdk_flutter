@@ -81,6 +81,11 @@ class StartSessionOptions {
   final bool? textOnly;
 
   /// Stable visitor identifier supplied by the host app.
+  ///
+  /// The SDK does not generate or persist this value on the device. If omitted,
+  /// each session is attributed to a new anonymous Customer and Memory does not
+  /// carry over. Pass the same stable value, such as a signed-in user ID or
+  /// installation ID, on every session that needs Memory continuity.
   final String? visitorId;
   final Map<String, Object?> dynamicVariables;
   final Map<String, Object?> metadata;
