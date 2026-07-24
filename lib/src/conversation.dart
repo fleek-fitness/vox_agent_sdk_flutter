@@ -92,11 +92,17 @@ class Conversation extends ChangeNotifier {
       List<ConversationMessage>.unmodifiable(_messages);
 
   Future<String> startSession(StartSessionOptions options) async {
+    final sessionIsTextOnly = options.textOnly ?? textOnly;
+    final payload = buildTokenRequestBody(
+      options,
+      sessionIsTextOnly ? "chat" : "call",
+    );
+
     if (_room != null) {
       await endSession();
     }
 
-    _textOnlySession = options.textOnly ?? textOnly;
+    _textOnlySession = sessionIsTextOnly;
     _disconnectEmitted = false;
     _messageMap.clear();
     _messages = const <ConversationMessage>[];
@@ -120,7 +126,7 @@ class Conversation extends ChangeNotifier {
     _listener = listener;
 
     try {
-      _connectionDetails = await _fetchConnectionDetails(options);
+      _connectionDetails = await _fetchConnectionDetails(options, payload);
       _bindRoomEvents(room, listener);
 
       await room.connect(
@@ -306,10 +312,8 @@ class Conversation extends ChangeNotifier {
 
   Future<_ConnectionDetails> _fetchConnectionDetails(
     StartSessionOptions options,
+    Map<String, dynamic> payload,
   ) async {
-    final mode = _textOnlySession ? "chat" : "call";
-    final payload = buildTokenRequestBody(options, mode);
-
     final response = await http.post(
       Uri.parse(liveKitTokenEndpoint),
       headers: <String, String>{

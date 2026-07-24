@@ -60,7 +60,9 @@ await conversation.startSession(
 없다. Memory 연속성이 필요하면 로그인 사용자 ID나 설치 ID처럼 안정적인
 `visitorId`를 매 세션 동일하게 전달해야 한다. vox.ai 내부 Customer UUID를
 입력하는 필드가 아니다. 에이전트의 Memory가 켜져 있으면 첫 응답 전에 해당
-Customer와 에이전트 범위의 Memory를 자동으로 불러온다.
+Customer와 에이전트 범위의 Memory를 자동으로 불러온다. 전달한 값은 앞뒤
+공백을 제거해 사용하며, 그 결과가 빈 문자열이면 요청 전에 `ArgumentError`가
+발생한다.
 
 For text-only sessions:
 
@@ -197,7 +199,8 @@ If your app requests runtime permissions manually, ask for microphone access bef
 
 ## Notes
 
-- `runtime_context.source.type` is sent as `react-sdk` for parity with the existing vox.ai SDKs.
+- `source_type` and `runtime_context.source.type` are sent as `flutter-sdk`; their version fields match the Flutter SDK version.
+- `dynamicVariables` values must be `String`, `num`, or `bool`. `null`, maps, lists, and other values cause `startSession()` to throw `ArgumentError` before requesting a token.
 - `getMessages()` and `messages` expose the same sorted conversation history snapshot.
 - `changeInputDevice()` and `changeOutputDevice()` are best-effort. They return `false` on unsupported platforms such as mobile runtimes where device switching is not exposed.
 - `getInputByteFrequencyData()` and `getOutputByteFrequencyData()` currently return empty byte arrays because `livekit_client` does not expose analyser frequency buffers.
