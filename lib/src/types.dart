@@ -70,8 +70,7 @@ class StartSessionOptions {
     required this.apiKey,
     this.agentVersion,
     this.textOnly,
-    this.customerId,
-    this.customerExternalId,
+    this.visitorId,
     this.dynamicVariables = const <String, Object?>{},
     this.metadata = const <String, Object?>{},
   });
@@ -81,11 +80,8 @@ class StartSessionOptions {
   final String? agentVersion;
   final bool? textOnly;
 
-  /// Vox customer UUID to bind to this session before it begins.
-  final String? customerId;
-
-  /// External customer identifier to bind to this session before it begins.
-  final String? customerExternalId;
+  /// Stable visitor identifier supplied by the host app.
+  final String? visitorId;
   final Map<String, Object?> dynamicVariables;
   final Map<String, Object?> metadata;
 }
