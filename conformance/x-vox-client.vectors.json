@@ -1,0 +1,251 @@
+{
+  "spec": "X-Vox-Client",
+  "version": 1,
+  "doc": "docs/X-VOX-CLIENT.md",
+  "sot": "fleek-fitness/vox_agent_sdk_js",
+  "note": "register is registration order (innermost first). header is the expected serialized value, or null when the header must be omitted. Copies in other repos must not be edited independently.",
+  "limits": {
+    "maxLayers": 8,
+    "maxHeaderBytes": 256,
+    "maxNameLength": 32,
+    "maxVersionLength": 32
+  },
+  "cases": [
+    {
+      "name": "core only",
+      "register": [{ "name": "js-sdk", "version": "0.3.0" }],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "wrapper over core is serialized outermost first",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.2.0" }
+      ],
+      "header": "react-sdk/1.2.0 js-sdk/0.3.0"
+    },
+    {
+      "name": "three layers keep full registration reversal",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.2.0" },
+        { "name": "app-shell", "version": "2.0.0" }
+      ],
+      "header": "app-shell/2.0.0 react-sdk/1.2.0 js-sdk/0.3.0"
+    },
+    {
+      "name": "duplicate name and version registers once",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "js-sdk", "version": "0.3.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "duplicate name with different version keeps the first",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "js-sdk", "version": "9.9.9" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "duplicate wrapper registration does not grow the list",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.2.0" },
+        { "name": "react-sdk", "version": "1.2.0" },
+        { "name": "react-sdk", "version": "1.3.0" }
+      ],
+      "header": "react-sdk/1.2.0 js-sdk/0.3.0"
+    },
+    {
+      "name": "uppercase name is dropped not lowercased",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "React-SDK", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "underscore in name is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react_sdk", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "space in name is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react sdk", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "slash in name is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "vox/react", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "non ascii name is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "리액트", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "empty name is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "", "version": "1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "empty version is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "space in version is dropped and not trimmed",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": " 1.2.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "trailing newline in version is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.2.0\n" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "semver prerelease and build metadata are allowed",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "cli", "version": "0.1.0-beta.17+build.7" }
+      ],
+      "header": "cli/0.1.0-beta.17+build.7 js-sdk/0.3.0"
+    },
+    {
+      "name": "digits and hyphens in name are allowed",
+      "register": [{ "name": "react-native-sdk-2", "version": "0.3.0" }],
+      "header": "react-native-sdk-2/0.3.0"
+    },
+    {
+      "name": "name of exactly 32 chars is kept",
+      "register": [
+        { "name": "abcdefghijklmnopqrstuvwxyz012345", "version": "1.0.0" }
+      ],
+      "header": "abcdefghijklmnopqrstuvwxyz012345/1.0.0"
+    },
+    {
+      "name": "name of 33 chars is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "abcdefghijklmnopqrstuvwxyz0123456", "version": "1.0.0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "version of exactly 32 chars is kept",
+      "register": [
+        { "name": "js-sdk", "version": "1.0.0-abcdefghijklmnopqrstuvwxyz" }
+      ],
+      "header": "js-sdk/1.0.0-abcdefghijklmnopqrstuvwxyz"
+    },
+    {
+      "name": "version of 33 chars is dropped",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.0.0-abcdefghijklmnopqrstuvwxyz0" }
+      ],
+      "header": "js-sdk/0.3.0"
+    },
+    {
+      "name": "empty registry omits the header",
+      "register": [],
+      "header": null
+    },
+    {
+      "name": "all layers malformed omits the header",
+      "register": [
+        { "name": "JS_SDK", "version": "0.3.0" },
+        { "name": "react-sdk", "version": "1.2 .0" }
+      ],
+      "header": null
+    },
+    {
+      "name": "exactly 8 layers are all kept",
+      "register": [
+        { "name": "layer-1", "version": "1.0.0" },
+        { "name": "layer-2", "version": "1.0.0" },
+        { "name": "layer-3", "version": "1.0.0" },
+        { "name": "layer-4", "version": "1.0.0" },
+        { "name": "layer-5", "version": "1.0.0" },
+        { "name": "layer-6", "version": "1.0.0" },
+        { "name": "layer-7", "version": "1.0.0" },
+        { "name": "layer-8", "version": "1.0.0" }
+      ],
+      "header": "layer-8/1.0.0 layer-7/1.0.0 layer-6/1.0.0 layer-5/1.0.0 layer-4/1.0.0 layer-3/1.0.0 layer-2/1.0.0 layer-1/1.0.0"
+    },
+    {
+      "name": "9 layers drop the outermost so the innermost core survives",
+      "register": [
+        { "name": "layer-1", "version": "1.0.0" },
+        { "name": "layer-2", "version": "1.0.0" },
+        { "name": "layer-3", "version": "1.0.0" },
+        { "name": "layer-4", "version": "1.0.0" },
+        { "name": "layer-5", "version": "1.0.0" },
+        { "name": "layer-6", "version": "1.0.0" },
+        { "name": "layer-7", "version": "1.0.0" },
+        { "name": "layer-8", "version": "1.0.0" },
+        { "name": "layer-9", "version": "1.0.0" }
+      ],
+      "header": "layer-8/1.0.0 layer-7/1.0.0 layer-6/1.0.0 layer-5/1.0.0 layer-4/1.0.0 layer-3/1.0.0 layer-2/1.0.0 layer-1/1.0.0"
+    },
+    {
+      "name": "byte overflow drops outermost layers until the value fits",
+      "register": [
+        {
+          "name": "layer-one-xxxxxxxxxxxxxxxxxxxxxx",
+          "version": "1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "layer-two-xxxxxxxxxxxxxxxxxxxxxx",
+          "version": "1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "layer-three-xxxxxxxxxxxxxxxxxxxx",
+          "version": "1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "name": "layer-four-xxxxxxxxxxxxxxxxxxxxx",
+          "version": "1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy"
+        }
+      ],
+      "header": "layer-three-xxxxxxxxxxxxxxxxxxxx/1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy layer-two-xxxxxxxxxxxxxxxxxxxxxx/1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy layer-one-xxxxxxxxxxxxxxxxxxxxxx/1.0.0-yyyyyyyyyyyyyyyyyyyyyyyyyy"
+    },
+    {
+      "name": "malformed layers are dropped before limits are applied",
+      "register": [
+        { "name": "js-sdk", "version": "0.3.0" },
+        { "name": "BAD", "version": "1.0.0" },
+        { "name": "react-sdk", "version": "1.2.0" }
+      ],
+      "header": "react-sdk/1.2.0 js-sdk/0.3.0"
+    }
+  ]
+}
