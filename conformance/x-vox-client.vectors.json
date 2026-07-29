@@ -2,7 +2,7 @@
   "spec": "X-Vox-Client",
   "version": 1,
   "doc": "docs/X-VOX-CLIENT.md",
-  "sot": "fleek-fitness/vox_agent_sdk_js",
+  "sot": "fleek-fitness/vox_agent_sdk_javascript",
   "note": "register is registration order (innermost first). header is the expected serialized value, or null when the header must be omitted. Copies in other repos must not be edited independently.",
   "limits": {
     "maxLayers": 8,
@@ -246,6 +246,32 @@
         { "name": "react-sdk", "version": "1.2.0" }
       ],
       "header": "react-sdk/1.2.0 js-sdk/0.3.0"
+    },
+    {
+      "name": "validation runs before the layer-count limit, not after",
+      "note": "10 registered, 3 malformed. Validating first leaves 7 valid layers so the count limit never fires. An implementation that applies the limit first would keep layer-2 and layer-5 and drop layer-10.",
+      "register": [
+        { "name": "layer-1", "version": "1.0.0" },
+        { "name": "LAYER-2", "version": "1.0.0" },
+        { "name": "layer-3", "version": "1.0.0" },
+        { "name": "layer-4", "version": "1.0.0" },
+        { "name": "layer_5", "version": "1.0.0" },
+        { "name": "layer-6", "version": "1.0.0" },
+        { "name": "layer-7", "version": "1.0.0" },
+        { "name": "layer-8", "version": "1.0.0" },
+        { "name": "layer-9", "version": "1.0 .0" },
+        { "name": "layer-10", "version": "1.0.0" }
+      ],
+      "header": "layer-10/1.0.0 layer-8/1.0.0 layer-7/1.0.0 layer-6/1.0.0 layer-4/1.0.0 layer-3/1.0.0 layer-1/1.0.0"
+    },
+    {
+      "name": "validation runs before deduplication, not after",
+      "note": "An implementation that dedupes first lets the malformed entry claim the name, then drops it in validation and yields null.",
+      "register": [
+        { "name": "react-sdk", "version": "bad value" },
+        { "name": "react-sdk", "version": "1.2.0" }
+      ],
+      "header": "react-sdk/1.2.0"
     }
   ]
 }
