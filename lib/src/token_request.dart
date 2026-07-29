@@ -1,3 +1,8 @@
+import "dart:convert";
+
+import "package:http/http.dart" as http;
+
+import "client_layers.dart";
 import "constants.dart";
 import "types.dart";
 
@@ -46,4 +51,22 @@ Map<String, dynamic> buildTokenRequestBody(
       },
     },
   };
+}
+
+Future<http.Response> postTokenRequest(
+  StartSessionOptions options,
+  Map<String, dynamic> payload,
+) {
+  ensureFlutterSdkClientLayerRegistered();
+  final clientHeader = serializeClientLayers();
+
+  return http.post(
+    Uri.parse(liveKitTokenEndpoint),
+    headers: <String, String>{
+      "Authorization": "Bearer ${options.apiKey}",
+      "Content-Type": "application/json",
+      "X-Vox-Client": ?clientHeader,
+    },
+    body: jsonEncode(payload),
+  );
 }
