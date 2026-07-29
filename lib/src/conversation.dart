@@ -3,7 +3,6 @@ import "dart:convert";
 import "dart:math" as math;
 
 import "package:flutter/foundation.dart";
-import "package:http/http.dart" as http;
 import "package:livekit_client/livekit_client.dart" hide AgentState;
 
 import "constants.dart";
@@ -314,14 +313,7 @@ class Conversation extends ChangeNotifier {
     StartSessionOptions options,
     Map<String, dynamic> payload,
   ) async {
-    final response = await http.post(
-      Uri.parse(liveKitTokenEndpoint),
-      headers: <String, String>{
-        "Authorization": "Bearer ${options.apiKey}",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode(payload),
-    );
+    final response = await postTokenRequest(options, payload);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
