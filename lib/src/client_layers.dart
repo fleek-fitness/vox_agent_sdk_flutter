@@ -22,10 +22,14 @@ class _ClientLayer {
 
 void registerClientLayer({required String name, required String version}) {
   try {
-    final alreadyRegistered = _clientLayers.any(
-      (layer) => layer.name == name && layer.version == version,
-    );
-    if (alreadyRegistered) return;
+    // 검증과 중복 제거를 등록 시점에 한다. 직렬화 시점에만 걸러도 헤더 결과는
+    // 같지만, 그러면 malformed 레이어와 같은 name 의 다른 버전이 목록에 계속
+    // 쌓인다. 명세는 name 기준 중복 제거이고 "버전이 달라도 마찬가지"다.
+    if (!_isFullMatch(_clientLayerNamePattern, name) ||
+        !_isFullMatch(_clientLayerVersionPattern, version)) {
+      return;
+    }
+    if (_clientLayers.any((layer) => layer.name == name)) return;
 
     _clientLayers.add(_ClientLayer(name: name, version: version));
   } catch (_) {
