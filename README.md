@@ -54,6 +54,21 @@ await conversation.startSession(
 );
 ```
 
+`audio`(`AudioOptions`)는 마이크 처리인 `echoCancellation`, `noiseSuppression`,
+`autoGainControl`을 설정하는 선택 필드다. 세 값 모두 기본값이 `true`라서 생략하면
+현재 동작이 유지된다. 스피커폰에서 `echoCancellation`을 끄면 에이전트 음성이 마이크로
+다시 들어가 스스로 끼어들 수 있으므로 헤드셋·이어폰 환경이나 자체 오디오 파이프라인에서만
+끈다. 세 값은 LiveKit `AudioCaptureOptions`로 전달되고, `textOnly` 세션에서는 마이크를
+열지 않아 적용되지 않는다.
+
+```dart
+const StartSessionOptions(
+  agentId: 'your-agent-id',
+  apiKey: 'your-api-key',
+  audio: AudioOptions(echoCancellation: false),
+);
+```
+
 `visitorId`는 같은 앱 사용자의 세션을 하나의 customer로 이어 붙일 때 사용하는
 선택 필드다. Flutter SDK는 `visitorId`를 자동으로 생성하거나 기기에 저장하지
 않는다. 생략하면 세션마다 새로운 익명 Customer에 귀속되어 Memory 연속성이

@@ -5,6 +5,7 @@ import "dart:math" as math;
 import "package:flutter/foundation.dart";
 import "package:livekit_client/livekit_client.dart" hide AgentState;
 
+import "audio_options.dart";
 import "constants.dart";
 import "token_request.dart";
 import "types.dart";
@@ -115,9 +116,10 @@ class Conversation extends ChangeNotifier {
     _updateStatus(ConversationStatus.connecting);
 
     final room = Room(
-      roomOptions: const RoomOptions(
+      roomOptions: RoomOptions(
         adaptiveStream: true,
         dynacast: true,
+        defaultAudioCaptureOptions: toAudioCaptureOptions(options.audio),
       ),
     );
     final listener = room.createListener();
