@@ -64,12 +64,25 @@ class ConversationMessage {
   }
 }
 
+class AudioOptions {
+  const AudioOptions({
+    this.echoCancellation = true,
+    this.noiseSuppression = true,
+    this.autoGainControl = true,
+  });
+
+  final bool echoCancellation;
+  final bool noiseSuppression;
+  final bool autoGainControl;
+}
+
 class StartSessionOptions {
   const StartSessionOptions({
     required this.agentId,
     required this.apiKey,
     this.agentVersion,
     this.textOnly,
+    this.audio = const AudioOptions(),
     this.visitorId,
     this.dynamicVariables = const <String, Object?>{},
     this.metadata = const <String, Object?>{},
@@ -79,6 +92,7 @@ class StartSessionOptions {
   final String apiKey;
   final String? agentVersion;
   final bool? textOnly;
+  final AudioOptions audio;
 
   /// Stable visitor identifier supplied by the host app.
   ///

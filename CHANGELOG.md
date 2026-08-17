@@ -1,3 +1,10 @@
+## 0.4.0
+
+- Add `AudioOptions` to configure echo cancellation, noise suppression, and
+  automatic gain control while preserving the current default-on behavior.
+- Forward the audio processing settings to LiveKit's default microphone capture
+  options.
+
 ## 0.3.0
 
 - Send the `X-Vox-Client` header on token requests so the SDK layers a build
