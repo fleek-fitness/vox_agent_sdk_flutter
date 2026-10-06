@@ -23,7 +23,7 @@ flutter pub get
 
 - Flutter app
 - Microphone permissions configured for your target platform
-- A vox.ai agent ID and API key
+- A vox.ai agent ID and a client key (`pk_…`), created in the dashboard under Settings > API keys with the purpose set to 「클라이언트용」 (client)
 
 ## Setup
 
@@ -48,7 +48,7 @@ final conversation = Conversation(
 await conversation.startSession(
   const StartSessionOptions(
     agentId: 'your-agent-id',
-    apiKey: 'your-api-key',
+    apiKey: 'pk_your_client_key',
     visitorId: 'your-stable-visitor-id',
   ),
 );
@@ -64,7 +64,7 @@ await conversation.startSession(
 ```dart
 const StartSessionOptions(
   agentId: 'your-agent-id',
-  apiKey: 'your-api-key',
+  apiKey: 'pk_your_client_key',
   audio: AudioOptions(echoCancellation: false),
 );
 ```
@@ -85,7 +85,7 @@ For text-only sessions:
 await conversation.startSession(
   const StartSessionOptions(
     agentId: 'your-agent-id',
-    apiKey: 'your-api-key',
+    apiKey: 'pk_your_client_key',
     textOnly: true,
   ),
 );
@@ -175,7 +175,7 @@ class _ConversationControllerState extends State<ConversationController> {
             await conversation.startSession(
               const StartSessionOptions(
                 agentId: 'your-agent-id',
-                apiKey: 'your-api-key',
+                apiKey: 'pk_your_client_key',
               ),
             );
           },
@@ -221,7 +221,11 @@ If your app requests runtime permissions manually, ask for microphone access bef
 - `getInputByteFrequencyData()` and `getOutputByteFrequencyData()` currently return empty byte arrays because `livekit_client` does not expose analyser frequency buffers.
 - `setVolume()` is a best-effort SDK-level setting. Flutter LiveKit does not expose the same per-track playback volume controls available in the web SDK.
 
-## Organization API Key Security
+## API Key Security
 
-- `apiKey` is an organization-scoped secret. On untrusted public pages, use the Widget with a public widget ID instead of this SDK.
-- Keys included in an app or bundle can be extracted. Use a dedicated key that can be revoked, and rotate it immediately if exposure is detected.
+- Use a **client key** (`pk_…`) in your app. Create it in the vox.ai dashboard under Settings > API keys with the purpose set to 「클라이언트용」 (client).
+- A client key can only start sessions. It cannot be used to read data or change settings through the REST API.
+- Client keys can optionally be restricted to allowed domains. Native apps send no `Origin`, so leave the field empty for native-only keys.
+- Client keys are limited to 30 session starts per minute per key and IP.
+- Secret keys (`sk_…`) are for servers. Secret keys created after client keys were introduced cannot start sessions from browsers or mobile apps. Existing secret keys keep working.
+- If a key is exposed, delete it and create a new one.
