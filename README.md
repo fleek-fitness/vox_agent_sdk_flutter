@@ -23,7 +23,7 @@ flutter pub get
 
 - Flutter app
 - Microphone permissions configured for your target platform
-- A vox.ai agent ID and a client key (`pk_…`), created in the dashboard under Settings > API keys with the "client" purpose
+- A vox.ai agent ID and a client key (`pk_…`), created in the dashboard under Settings > API keys with the purpose set to 「클라이언트용」 (client)
 
 ## Setup
 
@@ -223,7 +223,7 @@ If your app requests runtime permissions manually, ask for microphone access bef
 
 ## API Key Security
 
-- Use a **client key** (`pk_…`) in your app. Create it in the vox.ai dashboard under Settings > API keys with the "client" purpose.
+- Use a **client key** (`pk_…`) in your app. Create it in the vox.ai dashboard under Settings > API keys with the purpose set to 「클라이언트용」 (client).
 - A client key can only start sessions. It cannot be used to read data or change settings through the REST API.
 - Client keys can optionally be restricted to allowed domains. Native apps send no `Origin`, so leave the field empty for native-only keys.
 - Client keys are limited to 30 session starts per minute per key and IP.
